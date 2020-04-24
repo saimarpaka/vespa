@@ -178,7 +178,7 @@ public class DocumentProcessingHandler extends AbstractRequestHandler {
         DocprocService service = docprocServiceRegistry.getComponent(requestContext.getServiceName());
         //No need to enqueue a task if the docproc chain is empty, just forward requestContext
         if (service == null) {
-            log.log(LogLevel.ERROR, "DocprocService for session '" + requestContext.getServiceName() +
+            log.log(Level.SEVERE, "DocprocService for session '" + requestContext.getServiceName() +
                                     "' not found, returning request '" + requestContext + "'.");
             requestContext.processingFailed(RequestContext.ErrorCode.ERROR_PROCESSING_FAILURE,
                                             "DocprocService " + requestContext.getServiceName() + " not found.");
