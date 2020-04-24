@@ -52,7 +52,7 @@ public class DocumentProcessingTask implements Comparable<DocumentProcessingTask
                 processings.addAll(requestContext.getProcessings());
             } catch (Exception e) {
                 //deserialization failed:
-                log.log(LogLevel.WARNING, "Deserialization of message failed.", e);
+                log.log(Level.WARNING, "Deserialization of message failed.", e);
                 requestContext.processingFailed(e);
                 return;
             }
