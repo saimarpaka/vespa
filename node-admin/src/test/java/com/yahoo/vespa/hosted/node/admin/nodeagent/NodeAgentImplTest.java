@@ -446,9 +446,8 @@ public class NodeAgentImplTest {
         verify(dockerOperations, times(1)).stopServices(eq(context));
         verify(orchestrator, never()).resume(any(String.class));
         verify(orchestrator, never()).suspend(any(String.class));
-        // current Docker image and vespa version should be cleared
-        verify(nodeRepository, times(1)).updateNodeAttributes(
-                eq(hostName), eq(new NodeAttributes().withDockerImage(DockerImage.EMPTY).withVespaVersion(Version.emptyVersion)));
+        // Node should be moved to ready and thereby deleted
+        verify(nodeRepository, times(1)).setNodeState(eq(hostName), eq(NodeState.ready));
     }
 
     @Test

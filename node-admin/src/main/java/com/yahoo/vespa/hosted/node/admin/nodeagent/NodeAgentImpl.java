@@ -498,7 +498,6 @@ public class NodeAgentImpl implements NodeAgent {
                 context.log(logger, "State is " + node.state() + ", will delete application storage and mark node as ready");
                 credentialsMaintainer.ifPresent(maintainer -> maintainer.clearCredentials(context));
                 storageMaintainer.archiveNodeStorage(context);
-                updateNodeRepoWithCurrentAttributes(context);
                 nodeRepository.setNodeState(context.hostname().value(), NodeState.ready);
                 break;
             default:
