@@ -17,6 +17,7 @@ import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -97,6 +98,7 @@ public class GenerateOsgiManifestMojo extends AbstractMojo {
         try {
             Artifacts.ArtifactSet artifactSet = Artifacts.getArtifacts(project);
             warnOnUnsupportedArtifacts(artifactSet.getNonJarArtifacts());
+            warnIfInternalContainerArtifactsAreIncluded(artifactSet.getJarArtifactsToInclude());
 
             // Packages from Export-Package and Global-Package headers in provided scoped jars
             AnalyzeBundle.PublicPackages publicPackagesFromProvidedJars = publicPackagesAggregated(
@@ -312,6 +314,23 @@ public class GenerateOsgiManifestMojo extends AbstractMojo {
         unsupportedArtifacts.forEach(artifact -> getLog()
                 .warn(String.format("Unsupported artifact '%s': Type '%s' is not supported. Please file a feature request.",
                         artifact.getId(), artifact.getType())));
+    }
+
+    // TODO Vespa 8(?): fail the build by throwing a MojoExecutionException
+    private void warnIfInternalContainerArtifactsAreIncluded(Collection<Artifact> includedArtifacts) throws MojoFailureException {
+        /* In most cases it's sufficient to test for 'component', as it's the lowest level container artifact,
+         * Embedding container artifacts will cause class loading issues at runtime, because the classes will
+         * not be equal to those seen by the framework (e.g. AbstractComponent).
+         */
+        if (includedArtifacts.stream().anyMatch(this::isJdiscComponentArtifact)) {
+            getLog().warn("This project includes the 'com.yahoo.vespa:component' artifact in compile scope." +
+                                  " It must be set to scope 'provided' to avoid class loading issues at runtime." +
+                                  " The build will fail on a future Vespa version unless this is fixed.");
+        }
+    }
+
+    private boolean isJdiscComponentArtifact(Artifact a) {
+        return a.getArtifactId().equals("component") && a.getGroupId().equals("com.yahoo.vespa");
     }
 
     private ArtifactVersion artifactVersionOrNull(String version) {
