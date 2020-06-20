@@ -6,4 +6,4 @@ vespa_add_executable(config_configparser_test_app TEST
     config_cloudconfig
 )
 vespa_add_test(NAME config_configparser_test_app COMMAND config_configparser_test_app)
-vespa_generate_config(config_configparser_test_app ../../test/resources/configdefinitions/foo.def)
+vespa_generate_config(config_configparser_test_app_object ../../test/resources/configdefinitions/foo.def)

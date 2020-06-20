@@ -6,8 +6,8 @@ vespa_add_executable(config_file_subscription_test_app TEST
     config_cloudconfig
 )
 vespa_add_test(NAME config_file_subscription_test_app COMMAND config_file_subscription_test_app)
-vespa_generate_config(config_file_subscription_test_app ../../test/resources/configdefinitions/my.def)
-vespa_generate_config(config_file_subscription_test_app ../../test/resources/configdefinitions/foo.def)
-vespa_generate_config(config_file_subscription_test_app ../../test/resources/configdefinitions/bar.def)
-vespa_generate_config(config_file_subscription_test_app ../../test/resources/configdefinitions/foobar.def)
-vespa_generate_config(config_file_subscription_test_app ../../test/resources/configdefinitions/foodefault.def)
+vespa_generate_config(config_file_subscription_test_app_object ../../test/resources/configdefinitions/my.def)
+vespa_generate_config(config_file_subscription_test_app_object ../../test/resources/configdefinitions/foo.def)
+vespa_generate_config(config_file_subscription_test_app_object ../../test/resources/configdefinitions/bar.def)
+vespa_generate_config(config_file_subscription_test_app_object ../../test/resources/configdefinitions/foobar.def)
+vespa_generate_config(config_file_subscription_test_app_object ../../test/resources/configdefinitions/foodefault.def)

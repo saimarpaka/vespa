@@ -19,8 +19,10 @@ function(vespa_add_target_dependency TARGET OTHER_TARGET)
 
     # (Weak) dependency between object library and other target
     if(TARGET_TYPE STREQUAL OBJECT_LIBRARY)
-        add_dependencies(${TARGET} ${OTHER_TARGET})
-        target_include_directories(${TARGET} PRIVATE $<TARGET_PROPERTY:${OTHER_TARGET},INTERFACE_INCLUDE_DIRECTORIES>)
+        string(REGEX REPLACE ".*TARGET_OBJECTS:.*" "TARGET" OTHER_TARGET_REPLACED ${OTHER_TARGET})
+        if(NOT OTHER_TARGET STREQUAL dl AND NOT OTHER_TARGET STREQUAL atomic AND NOT OTHER_TARGET STREQUAL gtest AND NOT OTHER_TARGET STREQUAL m AND NOT OTHER_TARGET STREQUAL rt AND NOT OTHER_TARGET_REPLACED STREQUAL "TARGET" AND NOT OTHER_TARGET STREQUAL "stdc++fs")
+          target_include_directories(${TARGET} PRIVATE $<TARGET_PROPERTY:${OTHER_TARGET},INTERFACE_INCLUDE_DIRECTORIES>)
+        endif()
         return()
     endif()
 
@@ -183,6 +185,7 @@ function(vespa_add_library TARGET)
 
     if(ARG_OBJECT)
         set(LIBRARY_TYPE OBJECT)
+	__add_object_target_to_module(${TARGET})
     elseif(ARG_STATIC)
         set(LINKAGE STATIC)
     elseif(ARG_INTERFACE)
@@ -190,7 +193,11 @@ function(vespa_add_library TARGET)
         set(SOURCE_FILES)
     endif()
 
-    add_library(${TARGET} ${LINKAGE} ${LIBRARY_TYPE} ${SOURCE_FILES})
+    if (NOT ARG_STATIC)
+      add_library(${TARGET} ${LINKAGE} ${LIBRARY_TYPE} ${SOURCE_FILES})
+    else()
+      add_library(${TARGET} ${LINKAGE} ${LIBRARY_TYPE} $<TARGET_OBJECTS:${TARGET}_object>)
+    endif()
     __add_dependencies_to_target()
 
     __handle_test_targets()
@@ -206,6 +213,11 @@ function(vespa_add_library TARGET)
 
     __add_target_to_module(${TARGET})
     __export_include_directories(${TARGET})
+    if(ARG_STATIC)
+      unset(ARG_AFTER)
+      vespa_add_library(${TARGET}_object OBJECT SOURCES ${SOURCE_FILES} DEPENDS ${ARG_DEPENDS})
+      add_dependencies(${TARGET} ${TARGET}_object)
+    endif()
 endfunction()
 
 function(__install_header_files)
@@ -236,7 +248,7 @@ function(vespa_add_executable TARGET)
         ${ARGN})
 
     __check_target_parameters()
-    add_executable(${TARGET} ${ARG_SOURCES})
+    add_executable(${TARGET} $<TARGET_OBJECTS:${TARGET}_object>)
     __add_dependencies_to_target()
 
     __handle_test_targets()
@@ -251,6 +263,9 @@ function(vespa_add_executable TARGET)
 
     __add_target_to_module(${TARGET})
     __export_include_directories(${TARGET})
+    unset(ARG_AFTER)
+    vespa_add_library(${TARGET}_object OBJECT SOURCES ${ARG_SOURCES} DEPENDS ${ARG_DEPENDS})
+    add_dependencies(${TARGET} ${TARGET}_object)
 endfunction()
 
 macro(vespa_define_module)
@@ -513,6 +528,10 @@ endfunction()
 
 function(__add_source_target_to_module TARGET)
     set_property(GLOBAL APPEND PROPERTY MODULE_${MODULE_NAME}_SOURCE_TARGETS ${TARGET})
+endfunction()
+
+function(__add_object_target_to_module TARGET)
+    set_property(GLOBAL APPEND PROPERTY MODULE_${MODULE_NAME}_OBJECT_TARGETS ${TARGET})
 endfunction()
 
 macro(__handle_test_targets)

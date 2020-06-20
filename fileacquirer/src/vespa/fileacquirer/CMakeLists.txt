@@ -3,4 +3,4 @@ vespa_add_library(fileacquirer STATIC
     SOURCES
     DEPENDS
 )
-vespa_generate_config(fileacquirer filedistributorrpc.def)
+vespa_generate_config(fileacquirer_object filedistributorrpc.def)

@@ -3,10 +3,10 @@ vespa_add_library(searchcore_fconfig STATIC
     SOURCES
     DEPENDS
 )
-vespa_generate_config(searchcore_fconfig fdispatchrc.def)
+vespa_generate_config(searchcore_fconfig_object fdispatchrc.def)
 install_config_definition(fdispatchrc.def vespa.config.search.core.fdispatchrc.def)
-vespa_generate_config(searchcore_fconfig proton.def)
+vespa_generate_config(searchcore_fconfig_object proton.def)
 install_config_definition(proton.def vespa.config.search.core.proton.def)
-vespa_generate_config(searchcore_fconfig ranking-constants.def)
+vespa_generate_config(searchcore_fconfig_object ranking-constants.def)
 install_config_definition(ranking-constants.def vespa.config.search.core.ranking-constants.def)
-vespa_generate_config(searchcore_fconfig hwinfo.def)
+vespa_generate_config(searchcore_fconfig_object hwinfo.def)
